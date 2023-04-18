@@ -1,0 +1,64 @@
+pip install veritastool
+pip install scikit-learn==0.24.2
+pip install jupyter
+
+docker pull --platform linux/x86_64 veritastool/veritas-assessment-tool
+
+docker pull --platform linux/x86_64/v8 veritastool/veritas-assessment-tool
+
+export DOCKER_DEFAULT_PLATFORM=linux/x86_64/v8
+
+docker run -d \
+        -p 8001:8001 \
+        --name veritas-assessment-tool \
+        veritastool/veritas-assessment-tool:latest
+
+docker run -d \
+        -p 8001:8001 \
+        --name veritas-assessment-tool \
+        -v $PWD/file:/opt/veritas/file \
+        -v $PWD/log:/opt/veritas/log \
+        -v $PWD/config:/opt/veritas/config \
+        -c 4 \
+        -m 4g \
+        --stop-timeout 3600 \
+        veritastool/veritas-assessment-tool:latest
+
+wait for task [http-nio-8001-exec-1] to start
+
+docker image rm {image_name}
+
+########################################################################
+#! /bin/bash
+
+cd $(dirname $0)/.. || exit
+
+if [[ -f py/venv/bin/activate ]]; then
+  source py/venv/bin/activate
+fi
+
+JVM_OPT='-Dlog4j2.formatMsgNoLookups=true'
+
+nohup java ${JVM_OPT} -jar $(pwd)/jar/veritas-assessment-tool.jar 1>>log/stdout.log 2>&1 &
+
+########################################################################
+
+[root@90521a9c3eee veritas]# python -V
+Python 2.7.5
+[root@90521a9c3eee veritas]# echo $(pwd)
+/opt/veritas
+[root@90521a9c3eee veritas]# nohup java ${JVM_OPT} -jar $(pwd)/jar/veritas-assessment-tool.jar 1>>log/stdout.log 2>&1 &
+[1] 11716
+[root@90521a9c3eee veritas]# source py/venv/bin/activate
+(venv) [root@90521a9c3eee veritas]# python3 py/check_lib.py
+(venv) [root@90521a9c3eee veritas]# JVM_OPT="$JVM_GC_OPT -Dlog4j2.formatMsgNoLookups=true"
+(venv) [root@90521a9c3eee veritas]# nohup java ${JVM_OPT} -jar $(pwd)/jar/veritas-assessment-tool.jar 1>>log/stdout.log 2>&1 &
+[2] 17854
+(venv) [root@90521a9c3eee veritas]# htop
+bash: htop: command not found
+(venv) [root@90521a9c3eee veritas]# python3 -V
+Python 3.8.16
+
+########################################################################
+
+bin/tool.sh unlock -u admin/123456

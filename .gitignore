@@ -10,6 +10,7 @@ venv/
 *.model
 *.json
 *.out
-.ipynb_checkpoints/*
+.ipynb_checkpoints/
 *checkpoint.ipynb
 __pycache__/
+results/
