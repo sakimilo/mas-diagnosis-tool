@@ -7,6 +7,7 @@ docker pull --platform linux/x86_64 veritastool/veritas-assessment-tool
 docker pull --platform linux/x86_64/v8 veritastool/veritas-assessment-tool
 
 export DOCKER_DEFAULT_PLATFORM=linux/x86_64/v8
+## adding some arbitrary change
 
 docker run -d \
         -p 8001:8001 \
